@@ -1,0 +1,74 @@
+# ==========================================
+#  Java & Spring Boot .gitignore
+#  For: rag-chat-storage-service
+# ==========================================
+
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+log/
+logs/
+
+### Gradle (just in case someone adds it) ###
+.gradle/
+build/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+out/
+*.ipr
+*.iws
+
+### VS Code ###
+.vscode/
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+
+### Environment Files ###
+.env
+.env.*
+!*.example   # keep .env.example tracked
+
+### Logs & temp ###
+*.log
+*.tmp
+*.bak
+*.swp
+hs_err_pid*
+replay_pid*
+
+### Docker ###
+/docker-compose.override.yml
+/.docker/
+*.pid
+
+### Redis & PostgreSQL ###
+/data/
+*.db
+*.rdb
+
+### Testing ###
+/surefire-reports/
+/test-output/
+.idea_test_cache/
+
+### Coverage ###
+/jacoco.exec
+/coverage/
+.coverage/
+*.lcov
+
+### Misc ###
+*.orig
+*.rej
+*~
