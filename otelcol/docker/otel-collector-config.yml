@@ -1,0 +1,17 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+
+#  You can export to Jaeger, Grafana Tempo, or Elastic
+exporters:
+  logging:
+    loglevel: debug
+  elasticsearch:
+    endpoints: ["http://elasticsearch:9200"]
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [logging, elasticsearch]
