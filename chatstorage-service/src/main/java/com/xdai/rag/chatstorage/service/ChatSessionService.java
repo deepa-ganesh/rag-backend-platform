@@ -19,4 +19,6 @@ public interface ChatSessionService {
     ChatSessionResponse unmarkAsFavorite(UUID sessionId);
 
     List<ChatSessionResponse> getAllSessions();
+
+    ChatSessionResponse getSessionById(UUID sessionId);
 }

@@ -10,4 +10,4 @@ spring:
         git:
           uri: https://github.com/deepa-ganesh/rag-backend-platform.git
           search-paths: config-repository
-          default-label: feature_rag_microservices
+          default-label: main

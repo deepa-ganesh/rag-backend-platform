@@ -18,6 +18,8 @@ services:
   redis:
     image: redis:7
     container_name: redis
+    env_file:
+      - .env.${ENV:-local}
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -27,11 +29,13 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
+    env_file:
+      - .env.${ENV:-local}
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: postgres@local.com
-      PGADMIN_DEFAULT_PASSWORD: postgres
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
       - postgres
     networks: [backend]
@@ -39,6 +43,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
     container_name: elasticsearch
+    env_file:
+      - .env.${ENV:-local}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -63,11 +69,13 @@ services:
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.12.2
-    container_name: ${KIBANA_CONTAINER_NAME:-kibana}
+    container_name: kibana
+    env_file:
+      - .env.${ENV:-local}
     ports:
       - "5601:5601"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_URL}
       - xpack.security.enabled=false
     depends_on:
       - elasticsearch

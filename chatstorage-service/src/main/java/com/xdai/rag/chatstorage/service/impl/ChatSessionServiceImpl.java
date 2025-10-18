@@ -58,6 +58,24 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         }
     }
 
+    @Cacheable(value = "sessions", key = "#sessionId")
+    @Override
+    public ChatSessionResponse getSessionById(UUID sessionId) {
+        try {
+            ChatSession chatSession = getChatSessionById(sessionId);
+            log.info("Retrieved session [{}]", sessionId);
+
+            return chatSessionMapper.toResponse(chatSession);
+
+        } catch (ChatSessionNotFoundException e) {
+            log.warn("GetSessionById validation error for session [{}]: {}", sessionId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error while retrieving session [{}]: {}", sessionId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
     @CacheEvict(value = {"sessionsList"}, allEntries = true)
     @Audited(action = AuditAction.SESSION_CREATE)
     @Override

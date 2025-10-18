@@ -131,4 +131,21 @@ public class ChatSessionController {
 
         return ResponseEntity.ok(chatSessionService.getAllSessions());
     }
+
+    /**
+     * Lists session by session ID.
+     *
+     * @param sessionId The UUID of the chat session to retrieve.
+     * @return A ResponseEntity containing the ChatSessionResponse object.
+     */
+    @Operation(
+            summary = "Get chat session by ID",
+            description = "Retrieves the chat session with the specified session ID.",
+            security = {@SecurityRequirement(name = "ApiKeyAuth")}
+    )
+    @GetMapping(value = "/{sessionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ChatSessionResponse> getSessionById(@PathVariable("sessionId") UUID sessionId) {
+
+        return ResponseEntity.ok(chatSessionService.getSessionById(sessionId));
+    }
 }
