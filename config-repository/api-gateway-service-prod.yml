@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: chatstorage-service
+          uri: lb://chatstorage-service
+          predicates:
+            - Path=/ragchatstorage/api/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                # 5 requests/sec with burst capacity of 10
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                keyResolver: "#{@ipKeyResolver}"
+
+  redis:
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}

@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env.${ENV:-local}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [backend]
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    networks: [backend]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@local.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    depends_on:
+      - postgres
+    networks: [backend]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=${JDK_JAVA_OPTIONS:--Xms512m -Xmx512m}
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks: [backend]
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.2
+    container_name: logstash
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logstash/docker/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/docker/logstash.yml:/usr/share/logstash/config/logstash.yml
+    depends_on:
+      - elasticsearch
+    networks: [backend]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.2
+    container_name: ${KIBANA_CONTAINER_NAME:-kibana}
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    depends_on:
+      - elasticsearch
+    networks: [backend]
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    ports:
+      - "4318:4318"
+    volumes:
+      - ./otelcol/docker/otel-collector-config.yml:/etc/otelcol/config.yaml
+    depends_on:
+      - elasticsearch
+    networks: [backend]
+
+volumes:
+  pgdata:
+  redisdata:
+  esdata:
+
+networks:
+  backend:

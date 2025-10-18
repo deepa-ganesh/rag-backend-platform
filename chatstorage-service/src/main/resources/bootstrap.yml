@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: chatstorage-service
+
+# Optional: To see what's loaded from config-server
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
