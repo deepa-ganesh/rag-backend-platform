@@ -15,5 +15,5 @@ WORKDIR /app
 # Copy the built JAR
 COPY --from=builder /workspace/discovery-service/target/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8761
 ENTRYPOINT ["java", "-jar", "app.jar"]

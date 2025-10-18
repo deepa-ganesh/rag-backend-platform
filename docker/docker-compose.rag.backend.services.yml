@@ -8,11 +8,11 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 20s
       timeout: 10s
       retries: 5
-      start_period: 40s
+      start_period: 60s
     networks: [backend]
 
   config-server:
@@ -24,10 +24,10 @@ services:
       - "8888:8888"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
-      interval: 30s
+      interval: 20s
       timeout: 10s
       retries: 5
-      start_period: 40s
+      start_period: 60s
     networks: [backend]
 
   chatstorage-service:
@@ -54,8 +54,8 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8081/ragchatstorage/actuator/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 40s
+      retries: 10
+      start_period: 90s
     networks: [backend]
 
   api-gateway-service:
@@ -82,6 +82,6 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 40s
+      retries: 10
+      start_period: 90s
     networks: [ backend ]

@@ -144,6 +144,7 @@ Build the entire project, after cloning the repo:
 - Config Server: http://localhost:8888/actuator/health, http://localhost:8888/chatstorage-service/local
 - Chat Storage: http://localhost:8081/ragchatstorage/actuator/health
 - API Gateway: http://localhost:8080/actuator/health
+- pgAdmin: http://localhost:5050/
 
 ## Observability
 - Logs: Logback → Logstash (LOGSTASH_HOST:LOGSTASH_PORT) → Elasticsearch → Kibana (http://localhost:5601/)
