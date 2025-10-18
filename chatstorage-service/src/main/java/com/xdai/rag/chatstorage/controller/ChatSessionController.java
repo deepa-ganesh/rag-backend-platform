@@ -122,8 +122,8 @@ public class ChatSessionController {
      * @return A ResponseEntity containing a list of ChatSessionResponse objects.
      */
     @Operation(
-            summary = "List chat sessions (paginated, optional favorite filter)",
-            description = "Retrieves a list of all chat sessions. Optionally, filter by favorite status.",
+            summary = "List chat sessions",
+            description = "Retrieves a list of all chat sessions.",
             security = {@SecurityRequirement(name = "ApiKeyAuth")}
     )
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
