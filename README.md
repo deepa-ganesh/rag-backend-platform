@@ -1,16 +1,91 @@
 # RAG Backend Platform
 A production-ready backend microservices for securely storing and managing RAG-based chatbot conversations, built with Java 21, Spring Boot, PostgreSQL, Redis, and Dockerized microservice architecture.
 
-## Tech Stack
+## Requirements
 
+- JDK 21
+- Docker & Docker Compose
+- Maven 3.9+
+
+## Quick Start (Local, everything via Docker)
+
+The compose files live in ./docker. We use .env.* files to drive all settings.
+
+### Build the project
+
+```bash
+  cd rag-backend-platform
+  mvn clean install
+```
+
+### Running locally
+1. Create .env files (examples)
+- `docker/.env.local` (develop locally, Config Server in git mode)
+- `docker/.env.dev` (development environment, Config Server in git mode)
+- `docker/.env.prod` (production environment, Config Server in git mode)
+
+2. Prepare infra - Bring the required setup via Docker - PostgreSQL, Redis, ELK, Config Server
+
+```bash
+  cd docker
+  docker compose --env-file .env.local -f docker-compose.rag.base.yml up --build -d
+```
+
+3. Start all services:
+
+**Local**:
+```bash
+  cd ../discovery-service
+  mvn spring-boot:run -Dspring-boot.run.profiles=local
+  
+  cd ../config-server
+  mvn spring-boot:run -Dspring-boot.run.profiles=local
+  
+  cd ../chatstorage-service
+  mvn spring-boot:run -Dspring-boot.run.profiles=local
+  
+  cd ../api-gateway-service
+  mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+**Docker**:
+```bash
+  docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml up --build -d
+```
+
+4. To check logs of a particular service:
+
+```bash
+  docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml logs -f chatstorage-service
+```
+
+*Bonus*: Stop all services:
+
+```bash
+   docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml down -v --remove-orphans
+   docker system prune -af --volumes
+```
+
+> Note: Ensure Docker is running and ports mentioned in the docker-compose.*.yml are available.
+
+## Verify services
+- Config Server: http://localhost:8888/actuator/health
+- Config Server Properties: http://localhost:8888/chatstorage-service/local
+- Chat Storage: http://localhost:8081/ragchatstorage/actuator/health
+- API Gateway: http://localhost:8080/actuator/health
+- Access Eureka **Service Discovery**: http://localhost:8761
+- Centralized Logs: **Logback → Logstash → Elasticsearch → Kibana**: http://localhost:5601/
+- pgAdmin: http://localhost:5050/
+
+## Swagger / API Docs
+- Through Service: http://localhost:8081/ragchatstorage/swagger-ui/index.html
+- Through Gateway: http://localhost:8080/chatstorage-service/ragchatstorage/swagger-ui/index.html
+
+## Tech Stack
 - Java 21
 - Spring Boot 3.5
 - PostgreSQL
 - Redis
-- Spring Data JPA
-- Spring Security (API Key)
-- Spring Cache
-- Rate Limiting
 - Springdoc OpenAPI
 - Docker/Compose
 - ELK (Logstash/Elasticsearch/Kibana)
@@ -19,34 +94,25 @@ A production-ready backend microservices for securely storing and managing RAG-b
 - Spring Cloud Gateway
 
 ## Features
-
-| #  | Feature                                       | Description                                                                                      |
-| -- | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 1  | **Microservice Architecture**                 | Built with a modular design using Spring Boot microservices for scalability and maintainability. |
-| 2  | **Chat Conversation Management**              | Complete CRUD operations for chat sessions and messages, including rename, favorite, and delete. |
-| 3  | **Spring Cloud Gateway & Eureka Discovery**   | API Gateway for routing and service discovery across microservices.                              |
-| 4  | **Redis Caching**                             | Used for caching chat sessions, messages, and supporting rate limiting for better performance.   |
-| 5  | **PostgreSQL Storage**                        | Reliable persistence for chat sessions and message data.                                         |
-| 6  | **API Key Authentication**                    | Secure communication between clients and services using `X-API-Key` header.                      |
-| 7  | **Rate Limiting**                             | Prevents abuse and ensures fair usage with in-memory and Redis-based implementations.            |
-| 8  | **Centralized Logging (ELK Stack)**           | Logs collected via Logstash → stored in Elasticsearch → visualized in Kibana.                    |
-| 9  | **OpenTelemetry Integration**                 | Distributed tracing for monitoring inter-service communication and performance.                  |
-| 10 | **Global Exception Handling**                 | Unified error responses through a centralized exception handler.                                 |
-| 11 | **Health Checks (Actuator)**                  | Application liveness and readiness endpoints for monitoring.                                     |
-| 12 | **Pagination Support**                        | Efficient retrieval of paginated chat messages using Spring Data `PageRequest`.                  |
-| 13 | **Swagger/OpenAPI Docs**                      | Auto-generated API documentation for testing and exploration.                                    |
-| 14 | **Dockerized Setup**                          | End-to-end Docker Compose environment for local development and testing.                         |
-| 15 | **Centralized Configuration (Config Server)** | Spring Cloud Config Server for shared configuration across services.                             |
-| 16 | **Environment-Specific Configs**              | `.env.local`, `.env.dev`, `.env.prod` for environment isolation and runtime configuration.       |
-| 17 | **Unit & Integration Tests**                  | Core functionalities tested using `spring-boot-starter-test`.                                    |
-| 18 | **Auditing & Logging**                        | Audit trail maintained for session/message creation, updates, and deletions.                     |
-| 19 | **DTO Mapping with MapStruct**                | Clean transformation between entities and DTOs for API responses.                                |
-| 20 | **Security-First Design**                     | Proper separation of internal/external APIs and protection of sensitive endpoints.               |
-| 21 | **Observability Ready**                       | Metrics, traces, and logs integrated via OTEL and ELK.                                           |
-| 22 | **CI/CD Ready**                               | Modular structure supports independent builds, containerization, and deployment pipelines.       |
+- Microservice architecture with Spring Boot
+- Chat conversation management (CRUD for sessions/messages)
+- API Gateway with routing and rate limiting
+- Redis caching for performance
+- PostgreSQL for reliable storage
+- API Key authentication for security
+- Centralized logging with ELK stack
+- OpenTelemetry for distributed tracing
+- Health checks with Spring Boot Actuator
+- Pagination support for message retrieval
+- Swagger/OpenAPI documentation
+- Dockerized setup for easy deployment
+- Centralized configuration with Spring Cloud Config
+- Environment-specific configurations
+- Unit and integration tests
+- Auditing and logging of operations
+- Global exception handling
 
 ## Microservices
-
 | Module                | Description                                |
 |-----------------------|--------------------------------------------|
 | `chatstorage-service` | Manages the RAG-base chatbot conversations |
@@ -55,8 +121,7 @@ A production-ready backend microservices for securely storing and managing RAG-b
 | `api-gateway-service` | API Gateway and route handler              |
 | `common-service`      | Shared DTOs, exceptions, and utilities     |
 
-## Repository Layout (key modules)
-
+## Key Modules
 ```rag-backend-platform/
 │├── chatstorage-service/       # Chat storage microservice
 │├── config-server/             # Spring Cloud Config Server
@@ -68,60 +133,7 @@ A production-ready backend microservices for securely storing and managing RAG-b
 │└── README.md                  # This documentation
 ```
 
-## Requirements
-
-- JDK 21 
-- Docker & Docker Compose 
-- Maven 3.9+
-
-## Quick Start (Local, everything via Docker)
-
-The compose files live in ./docker. We use .env.* files to drive all settings.
-
-### 1. Create .env files (examples)
-- docker/.env.local (develop locally, Config Server in git mode)
-- docker/.env.dev (development environment, Config Server in git mode)
-- docker/.env.prod (production environment, Config Server in git mode)
-
-### 2. Local Development
-
-Build the entire project, after cloning the repo:
-
-```bash
-  cd rag-backend-platform
-  mvn clean install
-```
-
-## Running locally
-
-1. Prepare infra - Bring the required setup via Docker - PostgreSQL, Redis, ELK, Config Server
-
-```bash
-  cd docker
-  docker compose --env-file .env.local -f docker-compose.rag.base.yml up --build -d
-```
-
-2. Start all services with all infra:
-
-```bash
-  docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml up --build -d
-```
-
-3. Stop all services:
-
-```bash
-   docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml down -v --remove-orphans
-```
-
-4. To check logs of a particular service:
-
-```bash
-  docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml logs -f chatstorage-service
-```
-
-> Note: Ensure Docker is running and ports mentioned in the docker-compose.*.yml are available.
-
-## REST API Endpoints (chatstorage-service)
+## REST API Key Endpoints (chatstorage-service)
 - Base path (service): /
 - Base path (via gateway): /ragchatstorage/api/**
 
@@ -137,25 +149,6 @@ Build the entire project, after cloning the repo:
 - `POST /sessions/{sessionId}/messages` → Add new message to session
 - `GET /sessions/{sessionId}/messages?page={page}&size={size}` → Get messages for session
 - `GET /sessions/{sessionId}/messages` → Get messages by session ID
-- `DELETE /sessions/{sessionId}/messages/{messageId}` → Delete message by ID
-- `DELETE /sessions/{sessionId}/messages` → Delete all messages in session
-
-## Health checks
-- Config Server: http://localhost:8888/actuator/health, http://localhost:8888/chatstorage-service/local
-- Chat Storage: http://localhost:8081/ragchatstorage/actuator/health
-- API Gateway: http://localhost:8080/actuator/health
-- pgAdmin: http://localhost:5050/
-
-## Observability
-- Logs: Logback → Logstash (LOGSTASH_HOST:LOGSTASH_PORT) → Elasticsearch → Kibana (http://localhost:5601/)
-  - Local default goes to localhost:5001 
-  - Dev/Prod containers use logstash:5001 on the same Docker network
-- Traces & Metrics: OTLP exporter to otel-collector (http://localhost:4318/v1/traces)
-- Access Eureka **Service Discovery**: http://localhost:8761
-
-## Swagger / API Docs
-- Through service directly: http://localhost:8081/ragchatstorage/swagger-ui/index.html
-- Through Gateway (if you added swagger routes): http://localhost:8080/chatstorage-service/ragchatstorage/swagger-ui/index.html
 
 > Note: Authorize and provide your API key in header X-API-Key in Swagger UI to test endpoints.
 
@@ -165,26 +158,20 @@ Build the entire project, after cloning the repo:
 - In local: API_KEY= local-ragchat-api-key 
 - In dev/prod: set securely per environment
 
-## CORS (example):
-- Allowed origin: http://localhost:5173
-- Allowed headers: Content-Type, X-API-Key
-
 ## Configurations
 - Central config repo: [config-repository/](https://github.com/deepa-ganesh/rag-backend-platform/tree/main/config-repository)
-- Swagger/OpenAPI: enabled via SpringDoc in each service
 - OpenTelemetry Collector config: [docker/otelcol/docker/otel-collector-config.yml](https://github.com/deepa-ganesh/rag-backend-platform/blob/main/docker/otelcol/docker/otel-collector-config.yml)
 - Logstash config: [docker/logstash/docker/](https://github.com/deepa-ganesh/rag-backend-platform/tree/main/docker/logstash/docker)
 
-
-### Caching (Redis)
+## Caching (Redis - Spring Cache Abstraction)
 - Caches 
   - sessionsList → cached list of sessions 
   - sessions → individual session details 
   - sessionMessages → message lists per (sessionId, page, size) tuple
 - TTL configurable via CACHE_TTL (seconds).
 
-**Notes**:
-
+**Note**:
+- We use Spring Cache Abstraction with RedisCacheManager. This can be easily swapped out for another cache provider if needed.
 - We rely on @CacheEvict on mutating operations (create/rename/delete) to keep caches consistent.
 
 ## Rate Limiting
@@ -209,13 +196,14 @@ This project implements two types of rate limiting using Redis:
   - 500 → unhandled errors (with correlation IDs in logs)
 
 ## Further Enhancements
-| Area                         | Description                                                                   |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| **Authentication & Roles**   | Add JWT-based authentication with role-based access (Admin, User, Service).   |
-| **Event Integration**        | Introduce Kafka or RabbitMQ for asynchronous message events and auditing.     |
-| **Search Functionality**     | Implement full-text search of conversations using Elasticsearch.              |
-| **Async Processing**         | Use `@Async` or message queues to handle long-running tasks.                  |
-| **Enhanced Rate Limiting**   | Add user-based quotas and configurable thresholds per environment.            |
-| **Data Archival**            | Auto-archive or delete old chat sessions after a set retention period.        |
-| **Monitoring Dashboard**     | Add Prometheus + Grafana for real-time metrics visualization.                 |
-| **Unit & Integration Tests** | Expand test coverage for services, controllers, and caching logic.            |
+| Area                          | Description                                                                   |
+|-------------------------------| ----------------------------------------------------------------------------- |
+| **Authentication & Roles**    | Add JWT-based authentication with role-based access (Admin, User, Service).   |
+| **Event Integration**         | Introduce Kafka or RabbitMQ for asynchronous message events and auditing.     |
+| **Enhanced Caching**          | Implement cache warming and distributed cache invalidation strategies.        |
+| **Search Functionality**      | Implement full-text search of conversations using Elasticsearch.              |
+| **Async Processing**          | Use `@Async` or message queues to handle long-running tasks.                  |
+| **Enhanced Rate Limiting**    | Add user-based quotas and configurable thresholds per environment.            |
+| **Data Archival**             | Auto-archive or delete old chat sessions after a set retention period.        |
+| **Monitoring Dashboard**      | Add Prometheus + Grafana for real-time metrics visualization.                 |
+| **Unit & Integration Tests**  | Expand test coverage for services, controllers, and caching logic.            |
