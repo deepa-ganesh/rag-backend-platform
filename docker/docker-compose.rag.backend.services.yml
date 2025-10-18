@@ -1,0 +1,76 @@
+services:
+
+  discovery-service:
+    build:
+      context: ..
+      dockerfile: ./discovery-service/Dockerfile
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [backend]
+
+  config-server:
+    build:
+      context: ..
+      dockerfile: ./config-server/Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [backend]
+
+  api-gateway-service:
+    build:
+      context: ..
+      dockerfile: ./api-gateway-service/Dockerfile
+    container_name: api-gateway-service
+    env_file:
+      - .env.${ENV:-local}
+    depends_on:
+      redis:
+        condition: service_started
+      logstash:
+        condition: service_started
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks: [backend]
+
+  chatstorage-service:
+    build:
+      context: ..
+      dockerfile: ./chatstorage-service/Dockerfile
+    container_name: chatstorage-service
+    env_file:
+      - .env.${ENV:-local}
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      logstash:
+        condition: service_started
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [backend]

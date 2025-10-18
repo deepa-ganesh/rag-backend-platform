@@ -1,6 +1,6 @@
 # ==========================================
 #  Java & Spring Boot .gitignore
-#  For: rag-chat-storage-service
+#  For: chatstorage-service
 # ==========================================
 
 ### Java ###
@@ -35,7 +35,7 @@ out/
 Thumbs.db
 
 ### Environment Files ###
-.env
+.env*
 .env.*
 !*.example   # keep .env.example tracked
 
