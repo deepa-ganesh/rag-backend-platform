@@ -13,6 +13,12 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks: [backend]
 
   redis:
@@ -24,6 +30,11 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks: [backend]
 
   pgadmin:
@@ -37,7 +48,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks: [backend]
 
   elasticsearch:
@@ -53,6 +65,11 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cluster/health" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
     networks: [backend]
 
   logstash:
@@ -64,7 +81,8 @@ services:
       - ./logstash/docker/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ./logstash/docker/logstash.yml:/usr/share/logstash/config/logstash.yml
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks: [backend]
 
   kibana:
@@ -78,7 +96,8 @@ services:
       - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_URL}
       - xpack.security.enabled=false
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks: [backend]
 
   otel-collector:
@@ -89,7 +108,8 @@ services:
     volumes:
       - ./otelcol/docker/otel-collector-config.yml:/etc/otelcol/config.yaml
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks: [backend]
 
 volumes:

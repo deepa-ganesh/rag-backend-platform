@@ -28,16 +28,14 @@ public class RedisRateLimiterService implements RateLimiterService {
         try {
             String key = getKeyByClientId(clientId, windowInSeconds);
 
-            // Increments the value of the key in Redis by one
             Long currentCount = redisTemplate.opsForValue().increment(key);
-
             if (currentCount != null && currentCount == 1) {
                 redisTemplate.expire(key, Duration.ofSeconds(windowInSeconds));
+            }
 
-                if (currentCount > maxRequestsAllowed) {
-                    log.warn("Rate limit exceeded for client [{}] ({} req/{}s)", clientId, currentCount, windowInSeconds);
-                    return false;
-                }
+            if (currentCount != null && currentCount > maxRequestsAllowed) {
+                log.warn("Rate limit exceeded for client [{}] ({} req/{}s)", clientId, currentCount, windowInSeconds);
+                return false;
             }
 
             return true;

@@ -1,4 +1,4 @@
-package com.xdai.rag.chatstorage.audit;
+package com.xdai.rag.common.audit;
 
 public enum AuditAction {
     // Session actions

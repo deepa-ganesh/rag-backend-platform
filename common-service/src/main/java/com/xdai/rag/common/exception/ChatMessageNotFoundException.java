@@ -1,4 +1,4 @@
-package com.xdai.rag.chatstorage.exception;
+package com.xdai.rag.common.exception;
 
 public class ChatMessageNotFoundException extends RuntimeException {
 

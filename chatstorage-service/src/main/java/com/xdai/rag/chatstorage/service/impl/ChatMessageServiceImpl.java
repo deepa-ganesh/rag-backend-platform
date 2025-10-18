@@ -1,17 +1,17 @@
 package com.xdai.rag.chatstorage.service.impl;
 
-import com.xdai.rag.chatstorage.audit.AuditAction;
-import com.xdai.rag.chatstorage.audit.Audited;
 import com.xdai.rag.chatstorage.dto.ChatMessageRequest;
 import com.xdai.rag.chatstorage.dto.ChatMessageResponse;
 import com.xdai.rag.chatstorage.entity.ChatMessage;
 import com.xdai.rag.chatstorage.entity.ChatSession;
-import com.xdai.rag.chatstorage.exception.ChatSessionNotFoundException;
-import com.xdai.rag.chatstorage.exception.InvalidRequestException;
 import com.xdai.rag.chatstorage.mapper.ChatMessageMapper;
 import com.xdai.rag.chatstorage.repository.ChatMessageRepository;
 import com.xdai.rag.chatstorage.repository.ChatSessionRepository;
 import com.xdai.rag.chatstorage.service.ChatMessageService;
+import com.xdai.rag.common.audit.AuditAction;
+import com.xdai.rag.common.audit.Audited;
+import com.xdai.rag.common.exception.ChatSessionNotFoundException;
+import com.xdai.rag.common.exception.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

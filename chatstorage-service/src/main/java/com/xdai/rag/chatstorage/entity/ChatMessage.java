@@ -2,7 +2,9 @@ package com.xdai.rag.chatstorage.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.xdai.rag.chatstorage.common.Sender;
+import com.xdai.rag.chatstorage.util.AttributeEncryptor;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,7 +21,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table(name = "chat_messages")
@@ -43,8 +44,10 @@ public class ChatMessage {
     private Sender sender;
 
     @Column(columnDefinition = "TEXT", nullable = false)
+    @Convert(converter = AttributeEncryptor.class)
     private String content;
 
+    @Convert(converter = AttributeEncryptor.class)
     @Column(columnDefinition = "TEXT")
     private String context;
 

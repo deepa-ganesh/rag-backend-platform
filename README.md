@@ -33,22 +33,22 @@ The compose files live in ./docker. We use .env.* files to drive all settings.
 
 3. Start all services:
 
-**Local**:
+**Option 1: Local**:
 ```bash
-  cd ../discovery-service
+  cd discovery-service
   mvn spring-boot:run -Dspring-boot.run.profiles=local
   
-  cd ../config-server
+  cd config-server
   mvn spring-boot:run -Dspring-boot.run.profiles=local
   
-  cd ../chatstorage-service
+  cd chatstorage-service
   mvn spring-boot:run -Dspring-boot.run.profiles=local
   
-  cd ../api-gateway-service
+  cd api-gateway-service
   mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
-**Docker**:
+**Option 2: Docker**:
 ```bash
   docker compose --env-file .env.local -f docker-compose.rag.base.yml -f docker-compose.rag.backend.services.yml up --build -d
 ```

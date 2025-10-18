@@ -1,4 +1,4 @@
-package com.xdai.rag.chatstorage.audit;
+package com.xdai.rag.common.audit;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

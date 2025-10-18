@@ -22,7 +22,29 @@ spring:
     host: ${REDIS_HOST:redis}
     port: ${REDIS_PORT:6379}
 
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka}
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+
+elasticsearch:
+  url: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
+logstash:
+  host: ${LOGSTASH_HOST:logstash}
+  port: ${LOGSTASH_PORT:5001}
+kibana:
+  url: ${KIBANA_URL:http://kibana:5601}
+
+
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel-collector:4318/v1/traces}
+  service:
+    name: ${OTEL_SERVICE_NAME:chatstorage-service-local}

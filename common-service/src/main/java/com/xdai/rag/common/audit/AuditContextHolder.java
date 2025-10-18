@@ -1,6 +1,6 @@
-package com.xdai.rag.chatstorage.audit;
+package com.xdai.rag.common.audit;
 
-import com.xdai.rag.chatstorage.dto.AuditContext;
+import com.xdai.rag.common.dto.AuditContext;
 
 public class AuditContextHolder {
 

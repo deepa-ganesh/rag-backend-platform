@@ -1,4 +1,4 @@
-package com.xdai.rag.chatstorage.dto;
+package com.xdai.rag.common.dto;
 
 import lombok.Builder;
 import lombok.Data;

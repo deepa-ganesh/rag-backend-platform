@@ -1,8 +1,12 @@
-package com.xdai.rag.chatstorage.audit;
+package com.xdai.rag.chatstorage.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xdai.rag.chatstorage.dto.AuditContext;
+import com.xdai.rag.chatstorage.entity.AuditEvent;
 import com.xdai.rag.chatstorage.repository.AuditEventRepository;
+import com.xdai.rag.common.audit.AuditContextHolder;
+import com.xdai.rag.common.audit.AuditStatus;
+import com.xdai.rag.common.audit.Audited;
+import com.xdai.rag.common.dto.AuditContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

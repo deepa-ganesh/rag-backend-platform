@@ -15,7 +15,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG

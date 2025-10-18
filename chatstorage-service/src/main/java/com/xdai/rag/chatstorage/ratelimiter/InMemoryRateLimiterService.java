@@ -26,9 +26,7 @@ public class InMemoryRateLimiterService implements RateLimiterService {
         try {
             String key = getKeyByClientId(clientId, windowInSeconds);
 
-            Long counter = map.computeIfAbsent(key, k -> 0L);
-            long currentCount = counter + 1;
-
+            Long currentCount = map.merge(key, 1L, Long::sum);
             if (currentCount == 1) {
                 scheduleKeyExpiry(key);
             }

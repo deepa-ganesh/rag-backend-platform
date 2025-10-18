@@ -62,14 +62,6 @@ otel:
     name: ${OTEL_SERVICE_NAME:chatstorage-service-local}
 
 
-logging:
-  level:
-    root: INFO
-    com.xdai: DEBUG
-  file:
-    name: logs/rag-chat-storage.log
-
-
 springdoc:
   api-docs:
     enabled: false

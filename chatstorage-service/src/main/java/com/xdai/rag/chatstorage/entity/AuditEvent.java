@@ -1,5 +1,7 @@
-package com.xdai.rag.chatstorage.audit;
+package com.xdai.rag.chatstorage.entity;
 
+import com.xdai.rag.common.audit.AuditAction;
+import com.xdai.rag.common.audit.AuditStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +18,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 
 @Table(name = "audit_events")
 @AllArgsConstructor

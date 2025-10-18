@@ -1,5 +1,9 @@
 package com.xdai.rag.chatstorage.exception;
 
+import com.xdai.rag.common.exception.ApiError;
+import com.xdai.rag.common.exception.ChatMessageNotFoundException;
+import com.xdai.rag.common.exception.ChatSessionNotFoundException;
+import com.xdai.rag.common.exception.InvalidRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package com.xdai.rag.chatstorage.filter;
 
-import com.xdai.rag.chatstorage.audit.AuditContextHolder;
-import com.xdai.rag.chatstorage.dto.AuditContext;
+import com.xdai.rag.common.audit.AuditContextHolder;
+import com.xdai.rag.common.dto.AuditContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
