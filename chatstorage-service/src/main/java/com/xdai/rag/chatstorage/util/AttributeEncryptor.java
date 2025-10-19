@@ -1,9 +1,11 @@
 package com.xdai.rag.chatstorage.util;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -14,35 +16,37 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 @Converter
+@Component
+@Slf4j
 public class AttributeEncryptor implements AttributeConverter<String, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(AttributeEncryptor.class);
-    private static final String ENV_KEY_NAME = "qzExnoGTjyWI0hSCb+azbX9tp5OVh0ADvQ1Ox/8IUwI="; // Generated from 'head -c 32 /dev/urandom | base64'
     private static final String ALGO = "AES";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final int GCM_TAG_LENGTH = 16 * 8;
     private static final int IV_LENGTH = 12;
 
-    private static final SecretKey SECRET_KEY;
-    private static final boolean ENABLED;
+    @Value("${app.encryption.key:}")
+    private String encryptionKeyProperty;
 
-    static {
-        SecretKey key = null;
-        boolean enabled = false;
+    private static SecretKey SECRET_KEY;
+    private static boolean ENABLED;
+
+    @PostConstruct
+    private void init() {
         try {
-            String b64 = System.getenv(ENV_KEY_NAME);
-            if (b64 != null && !b64.isBlank()) {
-                byte[] decoded = Base64.getDecoder().decode(b64);
-                key = new SecretKeySpec(decoded, ALGO);
-                enabled = true;
+            if (encryptionKeyProperty != null && !encryptionKeyProperty.isBlank()) {
+                byte[] decoded = Base64.getDecoder().decode(encryptionKeyProperty);
+                SECRET_KEY = new SecretKeySpec(decoded, ALGO);
+                ENABLED = true;
+                log.info("Database field encryption enabled.");
             } else {
-                log.warn("Environment variable {} is not set - DB field encryption disabled.", ENV_KEY_NAME);
+                ENABLED = false;
+                log.warn("No encryption key configured — database field encryption disabled.");
             }
         } catch (Exception e) {
-            log.error("Failed to initialize encryption key from env {}: {}", ENV_KEY_NAME, e.getMessage(), e);
+            ENABLED = false;
+            log.error("Failed to initialize encryption key: {}", e.getMessage(), e);
         }
-        SECRET_KEY = key;
-        ENABLED = enabled;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
             byteBuffer.put(cipherText);
             return Base64.getEncoder().encodeToString(byteBuffer.array());
         } catch (Exception e) {
-            log.error("Encryption failed, returning plain text. Error: {}", e.getMessage(), e);
+            log.error("Encryption failed, returning plain text: {}", e.getMessage(), e);
             return attribute; // fallback to plain text to avoid breaking writes
         }
     }
@@ -90,8 +94,8 @@ public class AttributeEncryptor implements AttributeConverter<String, String> {
 
             return new String(plain, java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
-            log.error("Decryption failed, returning DB value as-is. Error: {}", e.getMessage(), e);
-            return dbData; // fallback
+            log.error("Decryption failed, returning DB value as-is: {}", e.getMessage(), e);
+            return dbData;
         }
     }
 }

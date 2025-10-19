@@ -5,6 +5,11 @@ spring:
   application:
     name: discovery-service
 
+logging:
+  level:
+    root: WARN
+    com.xdai.rag: INFO
+
 eureka:
   client:
     register-with-eureka: false

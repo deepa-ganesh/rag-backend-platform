@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/ragchatstoredev}
+    username: ${SPRING_DATASOURCE_USERNAME:ragchat_dev}
+    password: ${SPRING_DATASOURCE_PASSWORD:DevPa55word!}
     driver: org.postgresql.Driver
 
   jpa:
@@ -21,21 +21,19 @@ spring:
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
 
-
 app:
   rate:
     limit:
-      requests: ${RATE_LIMIT_REQUESTS:500}
+      requests: ${RATE_LIMIT_REQUESTS:200}
       windowSeconds: ${RATE_LIMIT_TIME_WINDOW:300}
   api:
-    key: ${API_KEY:change-me-prod-api-key}
+    key: ${API_KEY:dev-ragchat-api-key}
   cache:
-    ttl: ${CACHE_TTL:5}
+    ttl: ${CACHE_TTL:10}
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://app.example.com}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://dev.ragchat.example.com}
   encryption:
-    key: ${ENCRYPTION_KEY:change-me-prod-base64-key}
-
+    key: ${ENCRYPTION_KEY:change-me-dev-base64-key}
 
 eureka:
   client:
@@ -46,7 +44,6 @@ eureka:
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
 
-
 elasticsearch:
   url: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
 logstash:
@@ -55,17 +52,15 @@ logstash:
 kibana:
   url: ${KIBANA_URL:http://kibana:5601}
 
-
 otel:
   exporter:
     otlp:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel-collector:4318/v1/traces}
   service:
-    name: ${OTEL_SERVICE_NAME:chatstorage-service-prod}
-
+    name: ${OTEL_SERVICE_NAME:chatstorage-service-dev}
 
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
   swagger-ui:
-    enabled: false
+    enabled: true

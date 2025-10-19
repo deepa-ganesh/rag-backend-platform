@@ -134,32 +134,38 @@ The compose files live in ./docker. We use .env.* files to drive all settings.
 ```
 
 ## REST API Key Endpoints (chatstorage-service)
-- Base path (service): /
+- Base path (service): /api/**
 - Base path (via gateway): /ragchatstorage/api/**
 
 ### Sessions
-- `POST /sessions` → Create new chat session
-- `GET /sessions` → Get all chat sessions
-- `GET /sessions/{sessionId}` → Get chat session by ID
-- `PATCH /sessions/{sessionId}` → Rename chat session
-- `PATCH /sessions/{sessionId}?favorite=true` → Mark/unmark chat session as favorite
-- `DELETE /sessions/{sessionId}` → Delete chat session by ID
+- `POST /api/sessions/` → Create new chat session
+- `GET /api/sessions/` → Get all chat sessions
+- `GET /api/sessions/{sessionId}` → Get chat session by ID
+- `PATCH /api/sessions/{sessionId}/rename` → Rename chat session
+- `PATCH /api/sessions/{sessionId}/favorite?favorite=true` → Mark or unmark chat session as favorite
+- `DELETE /api/sessions/{sessionId}` → Delete chat session by ID
 
-### Messages
-- `POST /sessions/{sessionId}/messages` → Add new message to session
-- `GET /sessions/{sessionId}/messages?page={page}&size={size}` → Get messages for session
-- `GET /sessions/{sessionId}/messages` → Get messages by session ID
+- `POST /api/sessions/{sessionId}/messages` → Add new message (supports optional retrieved context)
+- `GET /api/sessions/{sessionId}/messages?page={page}&size={size}` → Get messages for session (paginated)
+- `DELETE /api/sessions/{sessionId}/messages` → Delete all messages in a session
+- `DELETE /api/messages/{messageId}` → Delete a single message by ID
 
 > Note: Authorize and provide your API key in header X-API-Key in Swagger UI to test endpoints.
 
-## Security (API Key)
-- All endpoints (except /actuator/**) require header:
-`X-API-Key: <value from environment API_KEY>`
-- In local: API_KEY= local-ragchat-api-key 
-- In dev/prod: set securely per environment
+## Security (API Key & Filters)
+- All endpoints (except /actuator/** and Swagger docs) require header `X-API-Key: <value from environment API_KEY>`.
+- Local default: `API_KEY=local-ragchat-api-key`; override per environment in `.env.*`.
+- Servlet filter chain enforces security:
+  - `BaseFilter` defines a single allowlist for public paths (health checks, Swagger).
+  - `AuthenticationFilter` (order 1) validates the API key.
+  - `RateLimitFilter` (order 2) applies service-level throttling.
+  - `AuditFilter` (order 3) populates correlation/audit context.
+- Spring Security is kept minimal — CSRF is disabled and the custom filters handle authentication and authorization logic.
 
 ## Configurations
 - Central config repo: [config-repository/](https://github.com/deepa-ganesh/rag-backend-platform/tree/main/config-repository)
+  - Chat Storage profiles: `chatstorage-service-{local,dev,prod}.yml`
+  - API Gateway profiles: `api-gateway-service-{local,dev,prod}.yml`
 - OpenTelemetry Collector config: [docker/otelcol/docker/otel-collector-config.yml](https://github.com/deepa-ganesh/rag-backend-platform/blob/main/docker/otelcol/docker/otel-collector-config.yml)
 - Logstash config: [docker/logstash/docker/](https://github.com/deepa-ganesh/rag-backend-platform/tree/main/docker/logstash/docker)
 
@@ -207,3 +213,29 @@ This project implements two types of rate limiting using Redis:
 | **Data Archival**             | Auto-archive or delete old chat sessions after a set retention period.        |
 | **Monitoring Dashboard**      | Add Prometheus + Grafana for real-time metrics visualization.                 |
 | **Unit & Integration Tests**  | Expand test coverage for services, controllers, and caching logic.            |
+## Smoke Test (curl)
+- Create a session:
+```bash
+curl -X POST http://localhost:8081/ragchatstorage/api/sessions/ \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: local-ragchat-api-key' \
+  -d '{"name":"Demo Session"}'
+```
+- Add a message (note the optional `context` field):
+```bash
+curl -X POST http://localhost:8081/ragchatstorage/api/sessions/{sessionId}/messages \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: local-ragchat-api-key' \
+  -d '{"sender":"USER","content":"Hello","context":"Weather forecast snippet"}'
+```
+- List messages with pagination:
+```bash
+curl -H 'X-API-Key: local-ragchat-api-key' \
+  "http://localhost:8081/ragchatstorage/api/sessions/{sessionId}/messages?page=0&size=20"
+```
+
+## Troubleshooting
+- **Kibana 5601 not responding**: Verify Elasticsearch is healthy via `docker compose logs elasticsearch`. If you see `vm.max_map_count` warnings, set `sudo sysctl -w vm.max_map_count=262144` on the host and restart the stack so Elasticsearch can allocate memory.
+- **Gateway container unhealthy**: Health checks now rely on Redis being marked `healthy` and on successfully fetching configuration from Config Server/Eureka. If the gateway keeps restarting, inspect `docker compose logs api-gateway-service` and confirm `redis` reports `healthy`.
+- **Elasticsearch exits with code 137**: Docker killed the process due to memory pressure. The default heap has been capped via `ES_JAVA_OPTS`; if the issue persists, increase Docker Desktop’s memory allowance or lower the heap further (e.g., `ES_JAVA_OPTS=-Xms256m -Xmx256m` in your `.env.*`) and remove stale data with `docker compose down -v esdata` before restarting.
+- **Logstash exits unexpectedly**: The image defaults to a 1 GB JVM heap. Set `LS_JAVA_OPTS` in your `.env.*` (already wired to 256 MB locally) to fit within Docker Desktop’s memory budget, or allocate more RAM to Docker.

@@ -47,4 +47,4 @@ otel:
     otlp:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://otel-collector:4318/v1/traces}
   service:
-    name: ${OTEL_SERVICE_NAME:chatstorage-service-local}
+    name: ${OTEL_SERVICE_NAME:api-gateway-service-prod}

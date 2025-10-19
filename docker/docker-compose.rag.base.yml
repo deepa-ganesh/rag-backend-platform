@@ -60,7 +60,8 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=${JDK_JAVA_OPTIONS:--Xms512m -Xmx512m}
+      - JDK_JAVA_OPTIONS=
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms512m -Xmx512m}
     ports:
       - "9200:9200"
     volumes:
@@ -75,6 +76,11 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.12.2
     container_name: logstash
+    env_file:
+      - .env.${ENV:-local}
+    environment:
+      - JDK_JAVA_OPTIONS=
+      - LS_JAVA_OPTS=${LS_JAVA_OPTS:- -Xms256m -Xmx256m}
     ports:
       - "5001:5001"
     volumes:

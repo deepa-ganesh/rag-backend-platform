@@ -37,11 +37,13 @@ services:
     container_name: chatstorage-service
     env_file:
       - .env.${ENV:-local}
+    environment:
+      - APP_ENCRYPTION_KEY=${ENCRYPTION_KEY}
     depends_on:
       postgres:
         condition: service_started
       redis:
-        condition: service_started
+        condition: service_healthy
       logstash:
         condition: service_started
       config-server:
@@ -55,7 +57,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
-      start_period: 90s
+      start_period: 120s
     networks: [backend]
 
   api-gateway-service:
@@ -65,9 +67,11 @@ services:
     container_name: api-gateway-service
     env_file:
       - .env.${ENV:-local}
+    environment:
+      - APP_ENCRYPTION_KEY=${ENCRYPTION_KEY}
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
       logstash:
         condition: service_started
       config-server:
@@ -83,5 +87,5 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
-      start_period: 90s
+      start_period: 150s
     networks: [ backend ]

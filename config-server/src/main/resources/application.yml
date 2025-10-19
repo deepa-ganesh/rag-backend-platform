@@ -11,3 +11,10 @@ spring:
           uri: https://github.com/deepa-ganesh/rag-backend-platform.git
           search-paths: config-repository
           default-label: main
+#        native:
+#          search-locations: /Users/deepaganesh/Projects/rag-backend-platform/config-repository
+
+logging:
+  level:
+    root: WARN
+    com.xdai.rag: INFO

@@ -53,10 +53,10 @@
         </dependency>
 
         <!-- Optional Security (for API Key filter / future OAuth) -->
-        <!--<dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>-->
+        </dependency>
 
         <!-- Database -->
         <dependency>
